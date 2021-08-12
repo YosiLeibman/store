@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display:flex;
+            justify-content: space-between;
+        }
+
+        .prods{
+            display:flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            
+        }
+        .prod{
+            margin-right: 20px;
+        }
+        .cart{
+            padding-right: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="prods">
+        <a href="/auth/logout">Logout</a>
+        
+    </div>
+    <ul class="cart">
+        
+    </ul>
+
+    <script>
+        (async ()=>{
+            const res = await fetch('/products')
+            const prods = await res.json()
+            console.log(prods)
+            for (const prod of prods) {
+                const div = document.createElement("div")
+                div.classList.add("prod")
+                const h1 = document.createElement("h1")
+                const h2 = document.createElement("h2")
+                const btn = document.createElement("button")
+
+                h1.textContent = prod.price
+                h2.textContent = prod.name
+                btn.textContent = "Add To Cart"
+                btn.addEventListener('click', ()=>{
+                    addToCart(prod._id)
+                })
+
+                div.appendChild(h2)
+                div.appendChild(h1)
+                div.appendChild(btn)
+
+                document.querySelector('.prods').appendChild(div)
+            }
+            
+            const res1 = await fetch('/products/cart')
+            const cart = await res1.json()
+            console.log(cart)
+            for (const item of cart) {
+                document.querySelector('.cart').innerHTML += `
+                    <li>
+                        <h3>${item._id.name}, ${item._id.price}$</h3>
+                        <p>${item.amount} qt. , total: ${item._id.price * item.amount}$</p>
+                    </li>
+                `
+            }
+        })()
+       
+        function addToCart(id) {
+            console.log(id)
+            fetch('/products/addtocart',{
+                method:"post",
+                body:JSON.stringify({id}),
+                headers:{
+                    'content-type':'application/json'
+                }
+            }).then(res=>res.text())
+            .then(()=>{
+                window.location.reload()
+            })
+        }
+
+       
+    </script>
+</body>
+</html>
